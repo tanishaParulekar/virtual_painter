@@ -2,7 +2,7 @@
 #include <opencv2/highgui.hpp> // for the gui
 #include <opencv2/imgproc.hpp>
 #include <iostream>
-#include <virtual_painter/virtual_painter.hpp>
+#include "virtual_painter.hpp"
 
 using namespace cv;
 using namespace std;
