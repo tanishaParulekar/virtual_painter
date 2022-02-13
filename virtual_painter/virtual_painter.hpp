@@ -6,6 +6,10 @@
 using namespace cv;
 using namespace std;
 
+// store all values from which to draw in a vector
+// where each inside vector stores {x, y, indexOfDetectColourVector}
+vector<vector<int>> newPoints;
+
 vector<vector<int>> detectColour{ {108,47,0,150,255,255}, // purple
 									{18,94,0,179,255,255} }; // green
 									//{0,132,0,179,255,255}}; // orange
@@ -14,7 +18,9 @@ vector<Scalar> detectColourValues{ {255,0,255}, // purple
 									{0,255,0} }; // green
 									//{51,153,255}}; // orange
 
-int getContours(Mat imgDil, Mat img) {
+// returns the point of the object from which to draw
+// here we aim for top centre of object (marker)
+Point getContours(Mat imgDil, Mat img) {
 	// Part 1: get shape contours
 	// Each array in the array will have a contour
 	vector<vector<Point>> contours;
@@ -35,6 +41,8 @@ int getContours(Mat imgDil, Mat img) {
 	vector<Rect> boundRect(contours.size());
 	// shape identifier
 	string objType;
+	// to find tip of marker
+	Point myPoint(0, 0);
 
 	// Part 2: filter out any noise/variation by calculating area of each contour - in this image it is the tiny black circle
 	for (int i = 0; i < contours.size(); i++) {
@@ -54,15 +62,26 @@ int getContours(Mat imgDil, Mat img) {
 
 			// print #points found for each shape
 			cout << contourPoly[i].size() << endl;
-
 			// Part 4: draw a bounding rectanlge around each shape
 			boundRect[i] = boundingRect(contourPoly[i]);
+			// get bounding box at top. Use this to find tip of marker. 
+			// (instead of using contour to make easier)
+			// want to draw rectangle from the middle, not the side
+			myPoint.x = boundRect[i].x + boundRect[i].width / 2;
+			// for y coordinate don't want centre 
+			myPoint.y = boundRect[i].y;
+
+			// bound with green box (rectangle)
+			// tl() is top left, br() is bottom right
+			rectangle(img, boundRect[i].tl(), boundRect[i].br(), Scalar(0, 255, 0), 5);
+					
 		}
 	}
 
-	return 0;
+	return myPoint;
 }
 
+// store point of colour from which to draw
 int findColor(Mat img) {
 	Mat imgHSV;
 	cvtColor(img, imgHSV, COLOR_BGR2HSV);
@@ -75,8 +94,27 @@ int findColor(Mat img) {
 		Mat mask;
 		inRange(imgHSV, lower, upper, mask);
 
-		//imshow(to_string(i), mask); // use first element of each vector row as identifier
-		getContours(mask, img);
+		/*
+		use first element of each vector row as identifier
+		imshow(to_string(i), mask); 
+		*/
+		// get top centre point of marker to draw from
+		Point myPoint = getContours(mask, img);
+		if (myPoint.x != 0 && myPoint.y != 0) {
+			// store the points
+			newPoints.push_back({ myPoint.x, myPoint.y, i });
+		}
+			
+	}
+	
+	return 0;
+}
+
+// accept newPoints and colour values 
+int drawOnCanvas(vector<vector<int>> newPoints,
+	vector<Scalar> detectColourValues, Mat img) {
+	for (int i = 0; i < newPoints.size(); i++) {
+		circle(img, (Point(newPoints[i][0]), Point(newPoints[i][1])), 10, detectColourValues[newPoints[i][2]], FILLED);
 	}
 	
 	return 0;
