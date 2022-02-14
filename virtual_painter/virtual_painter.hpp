@@ -113,7 +113,7 @@ vector<vector<int>> findColor(Mat img) {
 // accept newPoints and colour values 
 int drawOnCanvas(vector<vector<int>> newPoints, Mat img) {
 	for (int i = 0; i < newPoints.size(); i++) {
-		circle(img, (Point(newPoints[i][0]), Point(newPoints[i][1])), 10, detectColourValues[newPoints[i][2]], FILLED);
+		circle(img, Point(newPoints[i][0], newPoints[i][1]), 10, detectColourValues[newPoints[i][2]], FILLED);
 	}
 	
 	return 0;
