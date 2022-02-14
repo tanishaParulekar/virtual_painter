@@ -82,7 +82,7 @@ Point getContours(Mat imgDil, Mat img) {
 }
 
 // store point of colour from which to draw
-int findColor(Mat img) {
+vector<vector<int>> findColor(Mat img) {
 	Mat imgHSV;
 	cvtColor(img, imgHSV, COLOR_BGR2HSV);
 
@@ -107,12 +107,11 @@ int findColor(Mat img) {
 			
 	}
 	
-	return 0;
+	return newPoints;
 }
 
 // accept newPoints and colour values 
-int drawOnCanvas(vector<vector<int>> newPoints,
-	vector<Scalar> detectColourValues, Mat img) {
+int drawOnCanvas(vector<vector<int>> newPoints, Mat img) {
 	for (int i = 0; i < newPoints.size(); i++) {
 		circle(img, (Point(newPoints[i][0]), Point(newPoints[i][1])), 10, detectColourValues[newPoints[i][2]], FILLED);
 	}

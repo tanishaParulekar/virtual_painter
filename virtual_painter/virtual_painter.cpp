@@ -14,7 +14,8 @@ int main() {
 	Mat img;
 	while (true) {
 		cap.read(img);
-		findColor(img);  
+		newPoints = findColor(img);
+		drawOnCanvas(newPoints, img);
 		imshow("Image", img);
 		
 		waitKey(1);// so you want a super small delay (in ms)
